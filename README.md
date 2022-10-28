@@ -6,7 +6,14 @@ The starter repo was refactored and extended with the following new features:
 
 - a configuration file (e.g. change size of food, snake and the size of the game area)
 - a demonstration mode (automatically play of the computer without any interaction of a human player)
-- one-to-one battle (human vs computer)
+- one-to-n battle (human vs computer, computer can control more than one snake)
+- every snake controlled by the computer gets randomly a different colour
+
+## The objective of the game
+
+It is quite simple. Control your snake by your keyboard to reach the food. Once you ___eat___ the food you will grow and move faster. Don't ___eat___ yourself...  
+The game stops if any snakes bites itself. In that case the head of the snake will change its colour to red.  
+The winner in a multiplayer mode is the biggest snake.
 
 <img src="snake_game.gif"/>  
 
@@ -31,7 +38,7 @@ The starter repo was refactored and extended with the following new features:
 1. Clone this repo.
 2. Make a build directory in the top level directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
-4. Adapt the deployed (configuration file)[https://github.com/Sepphod/CppND-Capstone-Snake-Game/blob/master/src/snake.cfg].
+4. Adapt the deployed (configuration file)[https://github.com/Sepphod/CppND-Capstone-Snake-Game/blob/master/src/snake.cfg] according your wishes.
 5. Run it: `./SnakeGame`../src/snake.cfg. If no config file is provided default values will be used. The default values can be found in (settings.h)[https://github.com/Sepphod/CppND-Capstone-Snake-Game/blob/master/src/settings.h]
 
 ## Configuration
@@ -44,10 +51,21 @@ Via the [configuration file snake.cfg](https://github.com/Sepphod/CppND-Capstone
   - GridWidth and GridHeight
 - the refresh rate with which the play is displayed
   - FramesPerSecond
-- the number of snakes which try to reach the food (currently limited to 1)
-  - NumOfSnakes
+- the number of snakes which try to reach the food (currently limited to one human player)
+  - NumOfSnakes for more than one snake __AND__ ___DemoMode___ is 0 the first player will be the human player and the rest will be controlled by the computer 
 - Automatic playing by a virtual player 
   - DemoMode (1 - on and 0 - off)
+
+### Hints
+
+For more snakes a bigger battlefield area is recommended. Otherwise a probable winner emerges quickly.
+
+## Next steps
+
+The game is in a stable state. It covers almost all in the [rubic]() required C++ features. Though an interesting developer can even extend more features like:
+
+- snakes should not touch other snakes
+- more salt in the ___smartness___ of the computer controlled snakes.
 
 ## SW design
 
@@ -56,8 +74,11 @@ Via the [configuration file snake.cfg](https://github.com/Sepphod/CppND-Capstone
 Below the class diagram. Almost all SW modules are implemented as CPP classes or structs. Only the parsing of the configuration file is implemented as free functions. Those free functions base on a template function.  
 The main class is ___Game___. It owns the food and the players. If any of the snakes has eaten the food it will be placed on a new location by ___Game___. The players are a vector of smart pointers to the class ___Player___.  
 Every object of ___Player___ owns __one__ object of class ___Snake___ and __one__ object of ___ControllerBase___. The class ___Player___ controls the moving of its ___Snake___. It checks if the ___Snake___ has eaten the food. In that case the snake increases its size. Further it checks if the snake has not accidentally eaten itself. In that case the game would be over.  
-The class ___Snake___ is the representation of a snake with its head and its body. At the start of the game the body has a size of 0. With every food eaten by the snake the body increases by one. The body is a vector of smart pointers of ___SDL_Point___. If the body increases __std::make_unique<SDL_Point>__ is called.
+
+The class ___Snake___ is the representation of a snake with its head and its body. At the start of the game the body has a size of 0. With every food eaten by the snake the body increases by one. The body is a vector of smart pointers of ___SDL_Point___. If the body increases __std::make_unique<SDL_Point>__ is called.  
+
 The snake can be controlled by a real entrys via the keyboard or by calculating the best direction the snake shall head in order to reach the food. The class ___Controller___ is responsible for the input via keyboard and ___VirtualController___ is responsible for the calculation of the next step during the Demomode. As the player should not care about the kind of controller both were abstracted with a base class ___ControllerBase___ which specify by virtual function the common API. That API is used by the ___Player___.  
+
 The ___VirtualController___ outsources the calculation of the next step to ___RoutePlanner___. Which calculates the manhattan-distance of the current head to the food. It checks the possible neighbour positions and decides the best next neighbour. This leads to the direction whiches the ___VirtualController___ will use during the current game cycle to control the snake. Either the snake changes its direction or it keeps going in the same direction.
 
 ![class design](./doc/images/class.svg)
@@ -67,8 +88,10 @@ The implementation follows the rule of 5. Behaviour is encapsulated in dedicated
 ### Dynamic SW design
 
 The game is started via the commandline. The main function verifies the provided parameters. Afterwards the one object of the type ___Renderer__ and one object of the type ___Game___ are instantiated.  
-Within the constructor the configured number of ___Player___ are instantiated. Depending on a input parameter the constructor of ___Player___ instantiates either a ___VirtualController___ or a ___Controller___. At last action in the constructor of Game the food is placed randomly somewhere in the game area.
+Within the constructor the configured number of ___Player___ are instantiated. Depending on a input parameter the constructor of ___Player___ instantiates either a ___VirtualController___ or a ___Controller___. At last action in the constructor of Game the food is placed randomly somewhere in the game area.  
+
 After all initialization the main function calls ___Game.run()___. Which is a classic `while`-loop. It will be executed as long as you terminate the application (typically by pressing `CMD or CTRL - C`). A Player `dies` if it touches itself or another player.  
+
 At first within the `while`-loop the control inputs for all ___Player___ will be evaluated. The control inputs lead to a new position for the ___Snake___s. Which will be evaluated if any snake will eats itself. This will stop the game. The while-loop is still executed. But any input from a controller won't be accepted. 
 Than the food and the ___Snake___ of every ___Player___ are rendered. At the end of any game cycle the game statistics are updated and the display delay are calculated.
 
