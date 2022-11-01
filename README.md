@@ -62,7 +62,7 @@ For more snakes a bigger battlefield area is recommended. Otherwise a probable w
 
 ## Next steps
 
-The game is in a stable state. It covers almost all in the [rubic]() required C++ features. Though an interesting developer can even extend more features like:
+The game is in a stable state. It covers almost all of the rubic required C++ features. Though an interesting developer can even extend more features like:
 
 - snakes should not touch other snakes
 - more salt in the ___smartness___ of the computer controlled snakes.
@@ -90,10 +90,17 @@ The implementation follows the rule of 5. Behaviour is encapsulated in dedicated
 The game is started via the commandline. The main function verifies the provided parameters. Afterwards the one object of the type ___Renderer__ and one object of the type ___Game___ are instantiated.  
 Within the constructor the configured number of ___Player___ are instantiated. Depending on a input parameter the constructor of ___Player___ instantiates either a ___VirtualController___ or a ___Controller___. At last action in the constructor of Game the food is placed randomly somewhere in the game area.  
 
-After all initialization the main function calls ___Game.run()___. Which is a classic `while`-loop. It will be executed as long as you terminate the application (typically by pressing `CMD or CTRL - C`). A Player `dies` if it touches itself or another player.  
+After all initialization the main function calls ___Game.run()___. Which is a classic `while`-loop. It will be executed as long as you terminate the application (typically by pressing `CMD or CTRL - C`). A Player `dies` if it touches itself. Then the game ends and the player with the highest scores wins.  
 
-At first within the `while`-loop the control inputs for all ___Player___ will be evaluated. The control inputs lead to a new position for the ___Snake___s. Which will be evaluated if any snake will eats itself. This will stop the game. The while-loop is still executed. But any input from a controller won't be accepted. 
-Than the food and the ___Snake___ of every ___Player___ are rendered. At the end of any game cycle the game statistics are updated and the display delay are calculated.
+To fulfill the requirement to implement threads the calculation of the new position for every player is handled in a thread. At first within the `while`-loop one thread for every player is created. The threads are waiting for the keyboard input which is verified by the main loop. The main loop packs the control information in a message and informs all threads to start their working.  
+The human player will move the snake to a new position according to the keyboard input. The virtual players will calculate their new position. If the message sent by the main loop contains the terminating command both players will stop.  
+Every threads is getting destroyed after the calculation of the new position. The main loop waits until all threads are finished.
+
+The main loop verifies if any snake will eaten itself. Than the food and the ___Snake___ of every ___Player___ are rendered. At the end of any game cycle the game statistics are updated and the display delay are calculated.
+
+![threads](./doc/images/game_sequence.png)
+
+#### Details activity diagram
 
 ![dynamic](./doc/images/main_activity.svg)
 
@@ -117,7 +124,8 @@ The following rubric points are addressed within this project:
 - usage of loops, control structures and functions
 - Techniques of object-oriented programming (abstract classes and their child classes)
 - Memory Management (usage of smart pointer - strict avoidance of raw pointers, rule-of-5)
-- Concurrency is still missing
+- threads, mutex and conditions are used in the communication of the main loop with the threads of the players
+- Futures and promises are not used. 
 
 ## CC Attribution-ShareAlike 4.0 International
 

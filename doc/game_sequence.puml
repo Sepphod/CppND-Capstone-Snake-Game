@@ -1,0 +1,34 @@
+@startuml
+
+hide footbox
+title main loop in game.cpp
+participant HumanPlayer as T1
+participant VirtualPlayer as T2
+participant main
+
+main ++
+
+create T1
+main -> T1 : spawn
+create T2
+main -> T2 : spawn
+main -> main: verify keyboard input
+
+par
+    main -> T1 ++ #Bisque: send input
+    T1 -> T1 : move snake
+else
+    main -> T2 ++ #LightBlue: send input
+    T2 -> T2 : route planning
+    T2 -> T2 : move snake
+end
+T1 --
+T2 --
+main -> main : wait for player threads
+main -> main : reset communication channel
+main -> main : render food and snakes
+main -> main : calculate statistics 
+main -> main : delay
+
+
+@enduml
