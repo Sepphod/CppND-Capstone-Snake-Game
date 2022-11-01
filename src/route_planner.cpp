@@ -41,13 +41,9 @@ void RoutePlanner::run(Snake * snake,SDL_Point const & food) {
                 controlTest(snake, (*probableWinner)->direction_);     
             }
         } else {
-            // std::cout << "no same direction\n";
             controlTest(snake, (*probableWinner)->direction_);     
         }
-    } else {
-        // std::cout << "no winner\n";
-    }
-
+    } 
 }
 
 void RoutePlanner::controlTest(Snake * snake, Direction const & input) {

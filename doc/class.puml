@@ -30,13 +30,13 @@ RoutePlanner "1" *-- "*" Neighbour
 package Control {
 abstract class ControllerBase {
     + ControllerBase();
-    + virtual bool HandleInput(Snake *snake, SDL_Point const & food) = 0
+    + virtual bool HandleInput(Snake *snake, SDL_Point const & food, KeyStroke & pressedkey) = 0
 }
 class Controller {
-    + bool HandleInput(Snake *snake, SDL_Point const & food)  override
+    + bool HandleInput(Snake *snake, SDL_Point const & food, KeyStroke & pressedkey)  override
 }
 class VirtualController {
-    + bool HandleInput(Snake *snake, SDL_Point const & food)  override
+    + bool HandleInput(Snake *snake, SDL_Point const & food, KeyStroke & pressedkey)  override
     - RoutePlanner routePlanner_
 }
 ControllerBase <|-- Controller
@@ -49,6 +49,7 @@ class Game {
     + void Run(Controller const &controller, Renderer &renderer,std::size_t target_frame_duration)
     + int GetScore() const
     + int GetSize() const
+    + std::string GetScoreForPlayers() const
     - std::vector<std::unique_ptr<Player>> players_
     - SDL_Point food_
     - std::random_device randDev_
@@ -56,11 +57,20 @@ class Game {
     - std::uniform_int_distribution<int> randomWidth_
     - std::uniform_int_distribution<int> randomHeight_
     - int score_
+    - Channel<Message> chan_
+    - std::vector<std::thread> threads_   
     - void PlaceFood()
     - void Update()
+    - void SpawnPlayers()
+    - void StartControl(Message &msg)
+    - void WaitForPlayers()
+    - SnakeGame::KeyStroke VerifySDLEvent()
 }
 
 class SDL_Point {
+}
+
+class std::enable_shared_from_this<? extends Player> {
 }
 
 class Player {
@@ -71,15 +81,17 @@ class Player {
     + bool IsSnakeRunning() const
     + Snake * GetSnake() const
     + int GetScore() const 
+    + std::shared_ptr<Player> get_shared_this()
     - std::unique_ptr<ControllerBase> controller_
     - std::unique_ptr<Snake> snake_
     - bool running_
     - int score_
+    - Channel<Message> & chan_
     - void Grow()
 }
 
 class Snake {
-    + Snake(int grid_width, int grid_height)
+    + Snake(int grid_width, int grid_height, bool isPlayerVirtual)
     + Snake() 
     + void Update()
     + void GrowBody()
@@ -93,7 +105,8 @@ class Snake {
     + float headY_
     + int gridWidth_
     + int gridHeight_
-    + std::vector<std::unique_ptr<SDL_Point>>body_
+    + std::vector<std::unique_ptr<SDL_Point>>body_ 
+    + SnakeColour colour_
     - void UpdateHead()
     - void UpdateBody(std::unique_ptr<SDL_Point> current_cell, std::unique_ptr<SDL_Point> prev_cell)
     - bool isGrowing_
@@ -124,11 +137,50 @@ class Configfileparser {
 + GetDemoMode()
 }
 
+enum Direction {
+    kUp
+    kDown
+    kLeft
+    kRight
+    kQuit
+}
+
+enum KeyStroke {
+    none
+    keyUp
+    keyDown
+    keyLeft
+    keyRight
+    keyQuit
+}
+
+struct Message {
+    SnakeGame::KeyStroke pressedKey_    
+}
+
+struct SnakeColour {
+    unsigned char red_
+    unsigned char green_
+    unsigned char blue_
+}
+
+class Channel<? extends typename T> {
+    + T waitForStart()
+    + void start(T & msg)    
+    + void reset()
+    - std::mutex mtx_
+    - std::condition_variable cond_
+    - std::vector<T> messages_
+}
+
+std::enable_shared_from_this <|-- Player
 VirtualController "1" *-- "1" RoutePlanner
 Game "1" *-- "1" SDL_Point
 Game "1" *-- "*" Player
+Game "1" *-- "1" Channel
 Player "1" *-- "1" Snake
 Player "1" *-- "1" ControllerBase
+Player "1" o-- "1" Channel
 Snake "1" *-- "*" SDL_Point
 
 @enduml

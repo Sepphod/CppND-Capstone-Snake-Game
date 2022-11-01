@@ -41,10 +41,6 @@ private:
     Channel<Message> & chan_;
     
     void Grow();
-
-
-
-
 };
 
 }
