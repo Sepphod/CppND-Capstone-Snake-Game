@@ -14,8 +14,7 @@ namespace SnakeGame {
 
 class Player: public std::enable_shared_from_this<Player>{
 public:
-    Player(int grid_width, int grid_height, bool isPlayerVirtual,Channel<Message> & chan);
-    // Player() : Player(static_cast<int>(SnakeGame::kGridWidth), static_cast<int>(SnakeGame::kGridHeight), true) {};
+    Player(std::size_t grid_width, std::size_t grid_height, bool isPlayerVirtual,Channel<Message> & chan);
     ~Player();
     Player(Player const & other) = delete;
     Player(Player && other) = delete;

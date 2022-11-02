@@ -6,10 +6,10 @@
 #include <memory>
 namespace SnakeGame {
 
-
 class RoutePlanner {
 public:
-    RoutePlanner() = default;
+    RoutePlanner() : RoutePlanner(SnakeGame::kGridWidth, SnakeGame::kGridHeight) {};
+    RoutePlanner(std::size_t grid_width, std::size_t grid_height);
     ~RoutePlanner() = default;
     RoutePlanner(RoutePlanner const & other ) = delete;
     RoutePlanner(RoutePlanner  && other ) = delete;
@@ -31,6 +31,12 @@ public:
     void updateFood(SDL_Point const & food);
 
 private:
+    Point food_{0.f,0.f};
+    std::vector<std::unique_ptr<RoutePlanner::Neighbour>> neighbours_{};
+    const float grid_width_;
+    const float grid_height_;
+
+
     float calculateDistance(Point const & start, Point const & destination);
     void findNeighbour(Snake const * snake, Direction const direction);
     bool verifyDirection(Snake * snake,  Direction const & input);
@@ -38,9 +44,6 @@ private:
     bool verifyNeighbours(Snake const * snake, Point const & neighbour);
     void addNeighbours(Snake const * snake);
     
-    Point food_{0.f,0.f};
-
-    std::vector<std::unique_ptr<RoutePlanner::Neighbour>> neighbours_{};
 
 };
 

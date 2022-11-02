@@ -7,8 +7,15 @@
 #include <vector>
 #include <algorithm>
 #include <memory.h>
+#include "settings.h"
 
 namespace SnakeGame {
+
+RoutePlanner::RoutePlanner(std::size_t grid_width, std::size_t grid_height) : 
+                    grid_width_(static_cast<float>(grid_width)), 
+                    grid_height_(static_cast<float>(grid_height)) {
+
+}
 
 void RoutePlanner::run(Snake * snake,SDL_Point const & food) {
 
@@ -117,7 +124,7 @@ void RoutePlanner::findNeighbour(Snake const * snake,  Direction const direction
     switch (direction) {
         case  Direction::kLeft:
         {
-            auto neighbour = Point{(snake->headX_ - snake->speed_) <= 0.0f ? 32.0F: (snake->headX_ - snake->speed_) ,snake->headY_};
+            auto neighbour = Point{(snake->headX_ - snake->speed_) <= 0.0f ? grid_width_: (snake->headX_ - snake->speed_) ,snake->headY_};
             if (verifyNeighbours(snake,neighbour)) {
                  neighbours_.emplace_back(std::make_unique<RoutePlanner::Neighbour>(calculateDistance(neighbour,food_), Direction::kLeft));
             }
@@ -125,7 +132,7 @@ void RoutePlanner::findNeighbour(Snake const * snake,  Direction const direction
         break;
         case  Direction::kRight:
         {
-            auto neighbour =  Point{(snake->headX_ + snake->speed_) >= 32.0f ? 0.0F: (snake->headX_ + snake->speed_) ,snake->headY_};
+            auto neighbour =  Point{(snake->headX_ + snake->speed_) >= grid_width_ ? 0.0F: (snake->headX_ + snake->speed_) ,snake->headY_};
             if (verifyNeighbours(snake,neighbour)) {
                  neighbours_.emplace_back(std::make_unique<RoutePlanner::Neighbour>(calculateDistance(neighbour,food_), Direction::kRight));
             }
@@ -133,7 +140,7 @@ void RoutePlanner::findNeighbour(Snake const * snake,  Direction const direction
         break;
         case  Direction::kUp:
         {
-            auto neighbour =  Point{snake->headX_,(snake->headY_ - snake->speed_) <= 0.0f ? 32.0F: (snake->headY_ - snake->speed_)};
+            auto neighbour =  Point{snake->headX_,(snake->headY_ - snake->speed_) <= 0.0f ? grid_height_: (snake->headY_ - snake->speed_)};
             if (verifyNeighbours(snake,neighbour)) {
                  neighbours_.emplace_back(std::make_unique<RoutePlanner::Neighbour>(calculateDistance(neighbour,food_), Direction::kUp));
             }
@@ -141,7 +148,7 @@ void RoutePlanner::findNeighbour(Snake const * snake,  Direction const direction
         break;
         case  Direction::kDown:
         {
-            auto neighbour =  Point{snake->headX_,(snake->headY_ + snake->speed_) >= 32.0f ? 0.0F: (snake->headY_ + snake->speed_)};
+            auto neighbour =  Point{snake->headX_,(snake->headY_ + snake->speed_) >= grid_height_ ? 0.0F: (snake->headY_ + snake->speed_)};
             if (verifyNeighbours(snake,neighbour)) {
                  neighbours_.emplace_back(std::make_unique<RoutePlanner::Neighbour>(calculateDistance(neighbour,food_), Direction::kDown));
             }

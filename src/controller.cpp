@@ -34,6 +34,10 @@ namespace SnakeGame
     return true;
   }
 
+  VirtualController::VirtualController(std::size_t grid_width, std::size_t grid_height) : 
+        routePlanner_(grid_width,grid_height) {
+  }
+  
   bool VirtualController::HandleInput(Snake *snake, SDL_Point const & food,KeyStroke & pressedkey)
   {
 

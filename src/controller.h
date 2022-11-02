@@ -29,9 +29,10 @@ namespace SnakeGame
 
     class VirtualController : public ControllerBase {
     public:
+        VirtualController(std::size_t grid_width, std::size_t grid_height);
         bool HandleInput(Snake *snake, SDL_Point const & food, KeyStroke & pressedkey)  override;
     private:
-        RoutePlanner routePlanner_{};        
+        RoutePlanner routePlanner_;        
     
     };
 }
