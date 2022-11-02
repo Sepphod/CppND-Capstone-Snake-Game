@@ -123,6 +123,8 @@ The following rubric points are addressed within this project:
 - Compilation and execution without any error
 - usage of loops, control structures and functions
 - Techniques of object-oriented programming (abstract classes and their child classes)
+- Usage of templates
+- File access
 - Memory Management (usage of smart pointer - strict avoidance of raw pointers, rule-of-5)
 - threads, mutex and conditions are used in the communication of the main loop with the threads of the players
 - Futures and promises are not used. 
